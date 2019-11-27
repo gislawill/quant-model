@@ -1,6 +1,6 @@
 import React from "react"
 import { states } from "../constants/states"
-import { calculateRisks } from "../lib/calcRisks"
+import { calculateRisks } from "../lib/calculate-risks"
 
 const initialFormState = {
   city: '',

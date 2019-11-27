@@ -1,0 +1,5 @@
+{
+  "env": {
+    "GATSBY_CENSUS_KEY": "@gatsby_census_key"
+  }
+}
