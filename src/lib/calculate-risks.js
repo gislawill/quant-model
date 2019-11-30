@@ -15,7 +15,8 @@ const censusVariables = [
   'DP05_0005PE', // Percent Below 5 years old
   'DP05_0024PE', // Percent 65 and older
   'DP03_0066PE', // Percent receiving social security
-  'DP04_0058PE'  // Percent w/o cars
+  'DP04_0058PE', // Percent w/o cars
+  'DP05_0001E'   // population
 ]
 
 export  async function getCensusData(placeId, state) {
@@ -24,14 +25,21 @@ export  async function getCensusData(placeId, state) {
   const response = await fetch(fetchUrl)
   const responseJson = await response.json()
   const data = responseJson[1]
+  const percentBelowPoverty = parseFloat(data[1])
+  const percentBelow5 = parseFloat(data[2])
+  const percentAbove65 = parseFloat(data[3])
+  const percentReceivingSS = parseFloat(data[4])
+  const percentWOCars = parseFloat(data[5])
+  const population = parseFloat(data[6])
   const censusData = {}
   // Validate data before adding to censusData (as number, not string)
   censusData.name = data[0]
-  if (data[1] >= 0 && data[1] <= 100) censusData.percentBelowPoverty = parseFloat(data[1])
-  if (data[2] >= 0 && data[2] <= 100) censusData.percentBelow5 = parseFloat(data[2])
-  if (data[3] >= 0 && data[3] <= 100) censusData.percentAbove65 = parseFloat(data[3])
-  if (data[4] >= 0 && data[4] <= 100) censusData.percentReceivingSS = parseFloat(data[4])
-  if (data[5] >= 0 && data[5] <= 100) censusData.percentWOCars = parseFloat(data[5])
+  if (percentBelowPoverty >= 0 && percentBelowPoverty <= 100) censusData.percentBelowPoverty = percentBelowPoverty
+  if (percentBelow5 >= 0 && percentBelow5 <= 100) censusData.percentBelow5 = percentBelow5
+  if (percentAbove65 >= 0 && percentAbove65 <= 100) censusData.percentAbove65 = percentAbove65
+  if (percentReceivingSS >= 0 && percentReceivingSS <= 100) censusData.percentReceivingSS = percentReceivingSS
+  if (percentWOCars >= 0 && percentWOCars <= 100) censusData.percentWOCars = percentWOCars
+  if (population >= 0) censusData.population = population
   return censusData
 }
 
@@ -48,8 +56,7 @@ export function calculateSocialVulnerability(censusData) {
   }
   const censusKeys = Object.keys(censusZValues)
   // calculate mean, round to 2 decimals, force back to number
-  const meanZValue = +((censusKeys.reduce((a,b) => a + censusZValues[b], 0) / censusKeys.length).toFixed(2))
-  return meanZValue
+  return +((censusKeys.reduce((a,b) => a + censusZValues[b], 0) / censusKeys.length).toFixed(2))
 }
 
 // Calculate cost to migitate risk based on landtype inputs and known costs
@@ -69,18 +76,44 @@ export function calculateSuppressionCosts(formState) {
   return (costForGrass + costForForest + costForWUI) * 1.17 // account for inflation
 }
 
+function getHazardWeight(hazardLevel) {
+  if (hazardLevel === 'low') return 0.25
+  else if (hazardLevel === 'med') return 0.5
+  else if (hazardLevel === 'hi') return 0.75 
+  else if (hazardLevel === 'v-hi') return 1
+  else throw new Error('Hazard level not recognized')
+}
+
+// Calculate cost to evacuate based on population, social vulnerability, and exposure to fire (WUI)
+export function calculateEvacuationCosts(formState, socialVulnerability, censusData) {
+  const socialVulnerabilityWeight = 1 + socialVulnerability
+  const evacuatedPopulation = censusData.population * (formState.percentWUI / 100) * socialVulnerabilityWeight
+  return SuppressionCosts.evacuation * evacuatedPopulation
+}
+
+// Calculate cost from damage
+export function calculateDamageCosts(formState) {
+  const hazardWeight = getHazardWeight(formState.hazardLevel)
+  const numberOfBurnedAcres = formState.acreage * hazardWeight
+  return numberOfBurnedAcres * SuppressionCosts.damagedAcre
+}
+
 export async function calculateRisks (formState) {
   const places = await getPlaces(formState.state)
   const placeid = places.find(place => place[0].includes(formState.city))[2]
   const censusData = await getCensusData(placeid, formState.state)
   const socialVulnerability = calculateSocialVulnerability(censusData)
-  const mitigation = calculateMigitationCosts(formState)
-  const suppression = calculateSuppressionCosts(formState)
+  const mitigationCost = calculateMigitationCosts(formState)
   
+  const suppressionCost = calculateSuppressionCosts(formState)
+  const evacuationCost = calculateEvacuationCosts(formState, socialVulnerability, censusData)
+  const damageCost = calculateDamageCosts(formState)
+  const noMitigationCost = suppressionCost + evacuationCost + damageCost
+  const decision = mitigationCost < noMitigationCost ? 'Mitigate' : 'Suppress'
   return {
     name: censusData.name,
-    socialVulnerability,
-    mitigation,
-    suppression
+    mitigationCost,
+    noMitigationCost,
+    decision 
   }
 }

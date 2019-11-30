@@ -10,5 +10,12 @@ export const MitigationCosts = {
 export const SuppressionCosts = {
   grassShrub: 61,
   forest: 779,
-  WUI: 1695
+  WUI: 1695,
+  evacuation: 210,
+  damagedAcre: 3280
 }
+
+
+// 224.5 <- med
+// 433.2 <- high
+// 759.0 <- med

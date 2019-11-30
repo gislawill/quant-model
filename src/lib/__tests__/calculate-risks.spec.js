@@ -1,4 +1,4 @@
-import { getPlaces, getCensusData, calculateMigitationCosts, calculateSuppressionCosts, calculateSocialVulnerability } from '../calculate-risks'
+import { getPlaces, getCensusData, calculateMigitationCosts, calculateSuppressionCosts, calculateSocialVulnerability, calculateEvacuationCosts, calculateDamageCosts } from '../calculate-risks'
 
 describe("getPlaces", () => {
   const mockSuccessResponse = [
@@ -27,8 +27,8 @@ describe("getPlaces", () => {
 
 describe("getCensusData", () => {
   const mockSuccessResponse = [
-    ["NAME","DP03_0119PE","DP05_0005PE","DP05_0024PE","DP03_0066PE","DP04_0058PE","state","place"],
-    ["Calabasas city, California","6.1","3.4","15.9","25.3","2.2","06","09598"]
+    ["NAME","DP03_0119PE","DP05_0005PE","DP05_0024PE","DP03_0066PE","DP04_0058PE","DP05_0001E","state","place"],
+    ["Calabasas city, California","6.1","3.4","15.9","25.3","2.2","24169","06","09598"]
   ]
 
   beforeEach(() => {
@@ -44,14 +44,15 @@ describe("getCensusData", () => {
   test("returns complete json object", async () => {
     const censusData = await getCensusData('09598', 'ca')
     expect(global.fetch).toHaveBeenCalledTimes(1)
-    expect(global.fetch).toHaveBeenCalledWith('https://api.census.gov/data/2017/acs/acs5/profile?get=NAME&DP03_0119PE&DP05_0005PE&DP05_0024PE&DP03_0066PE&DP04_0058PE&for=place:09598&in=state:06&key=example-key')
+    expect(global.fetch).toHaveBeenCalledWith('https://api.census.gov/data/2017/acs/acs5/profile?get=NAME&DP03_0119PE&DP05_0005PE&DP05_0024PE&DP03_0066PE&DP04_0058PE&DP05_0001E&for=place:09598&in=state:06&key=example-key')
     const mockCensusData = {
       name: mockSuccessResponse[1][0],
       percentBelowPoverty: parseFloat(mockSuccessResponse[1][1]),
       percentBelow5: parseFloat(mockSuccessResponse[1][2]),
       percentAbove65: parseFloat(mockSuccessResponse[1][3]),
       percentReceivingSS: parseFloat(mockSuccessResponse[1][4]),
-      percentWOCars: parseFloat(mockSuccessResponse[1][5])
+      percentWOCars: parseFloat(mockSuccessResponse[1][5]),
+      population: parseFloat(mockSuccessResponse[1][6])
     }
     expect(censusData).toMatchObject(mockCensusData)
   })
@@ -107,5 +108,23 @@ describe("calculateMigitationCosts", () => {
     }
     const suppressionCosts = calculateSuppressionCosts(formState)
     expect(+(suppressionCosts.toFixed(2))).toBe(20457.45)
+  })
+})
+
+describe("calculateEvacuationCosts", () => {
+  test("returns proper calculation", () => {
+    const formState = { percentWUI: 10 }
+    const socialVulnerability = 0.5
+    const censusData = { population: 100 }
+    const evacuationCosts = calculateEvacuationCosts(formState, socialVulnerability, censusData)
+    expect(evacuationCosts).toBe(3150)
+  })
+})
+
+describe("calculateDamageCosts", () => {
+  test("returns proper calculation", () => {
+    const formState = { acreage: 100, hazardLevel: 'med' }
+    const damageCosts = calculateDamageCosts(formState)
+    expect(damageCosts).toBe(164000)
   })
 })

@@ -5,7 +5,7 @@ import { calculateRisks } from "../lib/calculate-risks"
 const initialFormState = {
   city: '',
   state: 'ca',
-  hazard: 'low',
+  hazardLevel: 'low',
   acreage: 0,
   percentGrass: 0,
   percentForest: 0,
@@ -53,7 +53,7 @@ const IndexPage = () => {
       </label><br />
       <label>
         Fire Hazard Severity:
-        <select id="hazard" value={formState.hazard} onChange={handleInputChange}>
+        <select id="hazardLevel" value={formState.hazardLevel} onChange={handleInputChange}>
           <option value={'low'}>Low</option>
           <option value={'med'}>Medium</option>
           <option value={'hi'}>High</option>
