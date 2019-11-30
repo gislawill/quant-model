@@ -10,8 +10,8 @@ const key = process.env.GATSBY_CENSUS_KEY
 export async function getCensusData() {
   const censusVarString = censusVariables.reduce((varString, cenVar) => varString + '&' + cenVar, 'NAME')
   const fetchUrl = `https://api.census.gov/data/2017/acs/acs5/profile?get=${censusVarString}&for=place:*&in=state:06&key=${key}`
-  const response = await fetch(fetchUrl);
-  const data = await response.json();
+  const response = await fetch(fetchUrl)
+  const data = await response.json()
   return data
 }
 
@@ -41,15 +41,15 @@ function getMean(arr) {
 }
 
 function getStDev(arr){
-  const mean = getMean(arr);
+  const mean = getMean(arr)
   
   const squareDiffs = arr.map(value => {
-    const diff = value - mean;
-    return diff * diff;
-  });
+    const diff = value - mean
+    return diff * diff
+  })
   
-  const avgSquareDiff = getMean(squareDiffs);
-  return +(Math.sqrt(avgSquareDiff).toFixed(2));
+  const avgSquareDiff = getMean(squareDiffs)
+  return +(Math.sqrt(avgSquareDiff).toFixed(2))
 }
 
 export async function calcZ () {

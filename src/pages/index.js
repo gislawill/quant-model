@@ -4,7 +4,7 @@ import { calculateRisks } from "../lib/calculate-risks"
 
 const initialFormState = {
   city: '',
-  state: '',
+  state: 'ca',
   hazard: 'low',
   acreage: 0,
   percentGrass: 0,
@@ -14,13 +14,13 @@ const initialFormState = {
 
 function formReducer(state, action) {
   switch (action.type) {
-    case 'input': return { ...state, [action.field]: action.value };
-    default: throw new Error();
+    case 'input': return { ...state, [action.field]: action.value }
+    default: throw new Error()
   }
 }
 
 const IndexPage = () => {
-  const [formState, dispatch] = React.useReducer(formReducer, initialFormState);
+  const [formState, dispatch] = React.useReducer(formReducer, initialFormState)
   const [response, setResponse] = React.useState('')
 
   const handleInputChange = event => { 
@@ -32,7 +32,7 @@ const IndexPage = () => {
   }
   
   async function handleSubmit (event)  { 
-    event.preventDefault();
+    event.preventDefault()
     const data = await calculateRisks(formState)
     setResponse(data)
   }
