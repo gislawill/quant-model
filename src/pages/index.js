@@ -1,87 +1,50 @@
 import React from "react"
-import { states } from "../constants/states"
-import { calculateRisks } from "../lib/calculate-risks"
-
-const initialFormState = {
-  city: '',
-  state: 'ca',
-  hazardLevel: 'low',
-  acreage: 0,
-  percentGrass: 0,
-  percentForest: 0,
-  percentWUI: 0
-}
-
-function formReducer(state, action) {
-  switch (action.type) {
-    case 'input': return { ...state, [action.field]: action.value }
-    default: throw new Error()
-  }
-}
+import { useStaticQuery } from "gatsby"
+import Img from "gatsby-image"
+import InputForm from '../components/form'
+import { PictureQuery } from '../lib/picture-query'
+import './layout.css'
 
 const IndexPage = () => {
-  const [formState, dispatch] = React.useReducer(formReducer, initialFormState)
-  const [response, setResponse] = React.useState('')
+  const data = useStaticQuery(PictureQuery)
+  const [documentHeight, setDocumentHeight] = React.useState(0)
+  const [imageOpacity, setImageOpacity] = React.useState(.65)
+  const [imageTransform, setImageTransform] = React.useState(.85)
+  const windowHeight = window.innerHeight
 
-  const handleInputChange = event => { 
-    dispatch({
-      type: 'input',
-      field: event.target.id,
-      value: event.target.value
-    })
-  }
+
+  React.useEffect(() => {
+    setDocumentHeight(document.body.clientHeight)
+    function handleScroll() {
+      const scrollPosition = window.scrollY + windowHeight
+      const scrollState = scrollPosition / documentHeight
+      setImageOpacity(scrollState)
+      setImageTransform(scrollState + .20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => { window.removeEventListener('scroll', handleScroll) }
+  }, [setDocumentHeight, setImageOpacity, setImageTransform, documentHeight, windowHeight])
   
-  async function handleSubmit (event)  { 
-    event.preventDefault()
-    const data = await calculateRisks(formState)
-    setResponse(data)
+  const imageStyle = {
+    opacity: imageOpacity,
+    transform: `scale(${imageTransform}) translateY(${(imageTransform * -70) + 70}%)`,
+    transition: 'opacity .2s ease'
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        City Name:
-        <input type="text" id="city" value={formState.city} onChange={handleInputChange} />
-      </label><br />
-      <label>
-        State:
-        <select id="state" value={formState.state} onChange={handleInputChange}>
-          {Object.keys(states).map(stateCode => (
-            <option value={stateCode} key={stateCode}>{states[stateCode].name}</option>
-          ))}
-        </select>
-      </label><br />
-      <label>
-        Fire Hazard Severity:
-        <select id="hazardLevel" value={formState.hazardLevel} onChange={handleInputChange}>
-          <option value={'low'}>Low</option>
-          <option value={'med'}>Medium</option>
-          <option value={'hi'}>High</option>
-          <option value={'v-hi'}>Very High</option>
-        </select>
-      </label><br />
-      <label>
-        Total Acreage:
-        <input type="number" id="acreage" value={formState.acreage} onChange={handleInputChange} />
-      </label><br />
-      <label>
-        Percent Grass:
-        <input type="number" id="percentGrass" value={formState.percentGrass} onChange={handleInputChange} />
-      </label><br />
-      <label>
-        Percent Forest:
-        <input type="number" id="percentForest" value={formState.percentForest} onChange={handleInputChange} />
-      </label><br />
-      <label>
-        Percent WUI:
-        <input type="number" id="percentWUI" value={formState.percentWUI} onChange={handleInputChange} />
-      </label><br />
-      <input type="submit" value="Submit" />
-      <br />
-      <pre>
-        {response && JSON.stringify(response, null, 2)}
-      </pre>
-    </form>
+    <>
+      <div className="container">
+        <h1>Should you invest in wildfire mitigation?</h1>
+        <h3>It's not an easy question. Use our simple tool to help you decide.</h3>
+        <InputForm />
+      </div>
+      <div className="fire-container fire-container__1" style={imageStyle}>
+        <Img fluid={data.fireImage2.childImageSharp.fluid} />
+      </div>
+      <div className="fire-container fire-container__2" style={imageStyle}>
+        <Img fluid={data.fireImage1.childImageSharp.fluid} />
+      </div>
+    </>
   )
 }
 

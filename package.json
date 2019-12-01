@@ -1,9 +1,9 @@
 {
-  "name": "gatsby-starter-default",
+  "name": "quant-model",
   "private": true,
-  "description": "A simple starter to get up and developing quickly with Gatsby",
+  "description": "A simple quant to allocate funds to prepare for wildfires",
   "version": "0.1.0",
-  "author": "Kyle Mathews <mathews.kyle@gmail.com>",
+  "author": "Will Gislason <gislawill@gmail.com>",
   "dependencies": {
     "dotenv": "^8.2.0",
     "gatsby": "^2.17.11",
