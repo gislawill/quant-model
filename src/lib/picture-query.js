@@ -1,6 +1,6 @@
-import { graphql } from "gatsby"
+import { useStaticQuery, graphql } from "gatsby"
 
-export const PictureQuery = graphql`
+export const usePictureQuery = () => useStaticQuery(graphql`
     query {
       fireImage1: file(relativePath: { eq: "Fire.png" }) {
         childImageSharp {
@@ -17,4 +17,4 @@ export const PictureQuery = graphql`
         }
       }
     }
-  `
+  `)

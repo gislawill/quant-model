@@ -19,9 +19,10 @@ function formReducer(state, action) {
   }
 }
 
-const InputForm = () => {
+const InputForm = props => {
+  const { setDecision } = props
   const [formState, dispatch] = React.useReducer(formReducer, initialFormState)
-  const [response, setResponse] = React.useState('')
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   const handleInputChange = event => { 
     dispatch({
@@ -33,8 +34,10 @@ const InputForm = () => {
   
   async function handleSubmit (event)  { 
     event.preventDefault()
+    setIsSubmitting(true)
     const data = await calculateRisks(formState)
-    setResponse(data)
+    setDecision(data)
+    setIsSubmitting(false)
   }
 
   return (
@@ -76,11 +79,8 @@ const InputForm = () => {
         The Percent WUI:
         <input type="number" id="percentWUI" value={formState.percentWUI} onChange={handleInputChange} />
       </label><br />
-      <input type="submit" value="Submit" />
+      <input type="submit" value={isSubmitting ? "Submitting..." : "Submit"} />
       <br />
-      <pre>
-        {response && JSON.stringify(response, null, 2)}
-      </pre>
     </form>
   )
 }

@@ -31,6 +31,10 @@ select, input {
   font-size: 1.25em;
 }
 
+select:focus, input:focus {
+  outline-color: red;
+}
+
 input[type="submit"] {
   color: red;
   border: solid 2px red;
@@ -39,7 +43,8 @@ input[type="submit"] {
   font-size: 1.5em;
 }
 
-input[type="submit"]:hover {
+input[type="submit"]:hover,
+input[type="submit"]:focus {
   color: white;
   background: red;
 }
