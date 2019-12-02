@@ -33,7 +33,7 @@ const DecisionDisplay = props => {
         for every dollar spent on mitigation, you'll save $16 in suppression costs.
       </p>
       <p>
-        Based on our estimated mitigation and suppression costs for your city, spending {mitigationPercent} 
+        Based on our estimated mitigation and suppression costs for your city, spending {mitigationPercent}&nbsp;
         on mitigation efforts and {suppressionPercent} on suppression efforts should yield the best return 
         on your investment.
       </p>

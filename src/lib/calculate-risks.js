@@ -106,11 +106,14 @@ export function calculateMitigationPercent(mit, sup) {
 }
 
 export async function calculateRisks (formState) {
+  if (!formState.acreage) {
+    return 'No Acreage'
+  }
   const hazardWeight = getHazardWeight(formState.hazardLevel)
   const places = await getPlaces(formState.state)
   const place = places.find(place => place[0].includes(formState.city))
   if (!place) {
-    return null
+    return 'No City'
   }
   const censusData = await getCensusData(place[2], formState.state)
   const socialVulnerability = calculateSocialVulnerability(censusData)

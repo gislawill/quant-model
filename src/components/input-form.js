@@ -38,10 +38,12 @@ const InputForm = props => {
     setIsSubmitting(true)
     const data = await calculateRisks(formState)
     setIsSubmitting(false)
-    if (data) {
-      setDecision(data)
+    if (data === 'No City') {
+      alert('Our apologies but we couldn\'t find your city in the US Census database. Please check the city\'s spelling/capitalization and try again.')
+    } else if (data === 'No Acreage') {
+      alert('Our apologies but our model requires a city\'s acreage to calculate costs. Please input the acreage below to use this tool.')
     } else {
-      alert('We couldn\'t find your city. Please check your spelling and capitalization and try again.')
+      setDecision(data)
     }
   }
 
