@@ -1,4 +1,4 @@
-import { getPlaces, getCensusData, calculateMigitationCosts, calculateSuppressionCosts, calculateSocialVulnerability, calculateEvacuationCosts, calculateDamageCosts } from '../calculate-risks'
+import { getPlaces, getCensusData, calculateMigitationCosts, calculateSuppressionCosts, calculateSocialVulnerability, calculateEvacuationCosts, calculateDamageCosts, calculateMitigationPercent, calculateAmountToMitigation } from '../calculate-risks'
 
 describe("getPlaces", () => {
   const mockSuccessResponse = [
@@ -125,6 +125,30 @@ describe("calculateDamageCosts", () => {
   test("returns proper calculation", () => {
     const formState = { acreage: 100, hazardLevel: 'med' }
     const damageCosts = calculateDamageCosts(formState)
-    expect(damageCosts).toBe(164000)
+    expect(damageCosts).toBe(98400)
   })
 })
+
+describe("calculateMitigationPercent", () => {
+  test("returns proper calculation: 32:1", () => {
+    const mitigationCost = 3200
+    const noMitigationCost = 100 // 1600
+    const mitigationPercent = calculateMitigationPercent(mitigationCost, noMitigationCost)
+    expect(mitigationPercent).toBe(1/3)
+  })
+  
+  test("returns proper calculation: 16:1", () => {
+    const mitigationCost = 1600
+    const noMitigationCost = 100
+    const mitigationPercent = calculateMitigationPercent(mitigationCost, noMitigationCost)
+    expect(mitigationPercent).toBe(0.50)
+  })
+
+  test("returns proper calculation: 4:1", () => {
+    const mitigationCost = 400
+    const noMitigationCost = 100
+    const mitigationPercent = calculateMitigationPercent(mitigationCost, noMitigationCost)
+    expect(mitigationPercent).toBe(0.80)
+  })
+})
+  

@@ -9,7 +9,8 @@ const initialFormState = {
   acreage: 0,
   percentGrass: 0,
   percentForest: 0,
-  percentWUI: 0
+  percentWUI: 0,
+  totalBudget: 0
 }
 
 function formReducer(state, action) {
@@ -55,7 +56,7 @@ const InputForm = props => {
         </select>
       </label><br />
       <label>
-        Fire Hazard Severity:
+        Current Fire Hazard Severity:
         <select id="hazardLevel" value={formState.hazardLevel} onChange={handleInputChange}>
           <option value={'low'}>Low</option>
           <option value={'med'}>Medium</option>
@@ -78,6 +79,10 @@ const InputForm = props => {
       <label>
         The Percent WUI:
         <input type="number" id="percentWUI" value={formState.percentWUI} onChange={handleInputChange} />
+      </label><br />
+      <label>
+        Fire Budget (optional):
+        <input type="number" id="totalBudget" value={formState.totalBudget} onChange={handleInputChange} />
       </label><br />
       <input type="submit" value={isSubmitting ? "Submitting..." : "Submit"} />
       <br />

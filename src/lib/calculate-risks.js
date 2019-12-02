@@ -77,10 +77,10 @@ export function calculateSuppressionCosts(formState) {
 }
 
 function getHazardWeight(hazardLevel) {
-  if (hazardLevel === 'low') return 0.25
-  else if (hazardLevel === 'med') return 0.5
-  else if (hazardLevel === 'hi') return 0.75 
-  else if (hazardLevel === 'v-hi') return 1
+  if (hazardLevel === 'low') return 0.1
+  else if (hazardLevel === 'med') return 0.3
+  else if (hazardLevel === 'hi') return 0.5 
+  else if (hazardLevel === 'v-hi') return .7
   else throw new Error('Hazard level not recognized')
 }
 
@@ -98,7 +98,15 @@ export function calculateDamageCosts(formState) {
   return numberOfBurnedAcres * SuppressionCosts.damagedAcre
 }
 
+// Allocation function 
+export function calculateMitigationPercent(mit, sup) {
+  const weightedSup = sup * 16
+  const percentMit = weightedSup / (mit + weightedSup)
+  return percentMit
+}
+
 export async function calculateRisks (formState) {
+  const hazardWeight = getHazardWeight(formState.hazardLevel)
   const places = await getPlaces(formState.state)
   const placeid = places.find(place => place[0].includes(formState.city))[2]
   const censusData = await getCensusData(placeid, formState.state)
@@ -108,12 +116,23 @@ export async function calculateRisks (formState) {
   const suppressionCost = calculateSuppressionCosts(formState)
   const evacuationCost = calculateEvacuationCosts(formState, socialVulnerability, censusData)
   const damageCost = calculateDamageCosts(formState)
-  const noMitigationCost = suppressionCost + evacuationCost + damageCost
-  const decision = mitigationCost < noMitigationCost ? 'Mitigate' : 'Suppress'
+  const noMitigationCost = (suppressionCost + evacuationCost + damageCost) * hazardWeight
+  const percentOnMitigation = calculateMitigationPercent(mitigationCost, noMitigationCost)
+  const percentOnSuppression = 1 - percentOnMitigation
+
+  const totalOnMitigation = formState.totalBudget ? formState.totalBudget * percentOnMitigation : null
+  const totalOnSuppression = formState.totalBudget ? formState.totalBudget * percentOnSuppression : null
+
   return {
     name: censusData.name,
     mitigationCost,
     noMitigationCost,
-    decision 
+    suppressionCost,
+    evacuationCost,
+    damageCost,
+    percentOnMitigation,
+    percentOnSuppression,
+    totalOnMitigation,
+    totalOnSuppression
   }
 }
