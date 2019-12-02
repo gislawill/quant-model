@@ -27,7 +27,6 @@ const IndexPage = () => {
   const opacity = result ? 1 : imageOpacity
   const transform = result ? '' : `scale(${imageTransform}) translateY(${(imageTransform * -70) + 70}%)`
   const imageStyle = { opacity, transform }
-  console.log('result', result)
   return (
     <>
       <div className="container">
