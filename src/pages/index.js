@@ -5,22 +5,9 @@ import DecisionDisplay from '..//components/decision-display'
 import { usePictureQuery } from '../lib/picture-query'
 import './layout.css'
 
-const mockResult = {
-  damageCost: 32800,
-  evacuationCost: 548152.92,
-  mitigationCost: 811305,
-  name: "Calabasas city, California",
-  noMitigationCost: 64027.19200000001,
-  percentOnMitigation: 0.5580501769424795,
-  percentOnSuppression: 0.4419498230575205,
-  suppressionCost: 59319,
-  totalOnMitigation: null,
-  totalOnSuppression: null
-}
-
 const IndexPage = () => {
   const data = usePictureQuery()
-  const [result, setResult] = React.useState(mockResult)
+  const [result, setResult] = React.useState(null)
   const [documentHeight, setDocumentHeight] = React.useState(0)
   const [imageOpacity, setImageOpacity] = React.useState(.65)
   const [imageTransform, setImageTransform] = React.useState(.85)
@@ -49,8 +36,8 @@ const IndexPage = () => {
         {!result && <InputForm setDecision={setResult} />}
         {result && (
           <>
-            <button onClick={() => setResult(null)}>Update Inputs</button>
             <DecisionDisplay decision={result} />
+            <button onClick={() => setResult(null)}>Try another city</button>
           </>
         )}
       </div>

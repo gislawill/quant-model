@@ -37,8 +37,12 @@ const InputForm = props => {
     event.preventDefault()
     setIsSubmitting(true)
     const data = await calculateRisks(formState)
-    setDecision(data)
     setIsSubmitting(false)
+    if (data) {
+      setDecision(data)
+    } else {
+      alert('We couldn\'t find your city. Please check your spelling and capitalization and try again.')
+    }
   }
 
   return (

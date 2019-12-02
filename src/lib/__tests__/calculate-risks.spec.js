@@ -112,7 +112,15 @@ describe("calculateMigitationCosts", () => {
 })
 
 describe("calculateEvacuationCosts", () => {
-  test("returns proper calculation", () => {
+  test("returns proper calculation for below average social vulnerability", () => {
+    const formState = { percentWUI: 10 }
+    const socialVulnerability = -0.5
+    const censusData = { population: 100 }
+    const evacuationCosts = calculateEvacuationCosts(formState, socialVulnerability, censusData)
+    expect(evacuationCosts).toBe(1050)
+  })
+
+  test("returns proper calculation for above average social vulnerability", () => {
     const formState = { percentWUI: 10 }
     const socialVulnerability = 0.5
     const censusData = { population: 100 }

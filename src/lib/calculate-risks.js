@@ -56,7 +56,7 @@ export function calculateSocialVulnerability(censusData) {
   }
   const censusKeys = Object.keys(censusZValues)
   // calculate mean, round to 2 decimals, force back to number
-  return +((censusKeys.reduce((a,b) => a + censusZValues[b], 0) / censusKeys.length).toFixed(2))
+  return censusKeys.reduce((a,b) => a + censusZValues[b], 0) / censusKeys.length
 }
 
 // Calculate cost to migitate risk based on landtype inputs and known costs
@@ -108,8 +108,11 @@ export function calculateMitigationPercent(mit, sup) {
 export async function calculateRisks (formState) {
   const hazardWeight = getHazardWeight(formState.hazardLevel)
   const places = await getPlaces(formState.state)
-  const placeid = places.find(place => place[0].includes(formState.city))[2]
-  const censusData = await getCensusData(placeid, formState.state)
+  const place = places.find(place => place[0].includes(formState.city))
+  if (!place) {
+    return null
+  }
+  const censusData = await getCensusData(place[2], formState.state)
   const socialVulnerability = calculateSocialVulnerability(censusData)
   const mitigationCost = calculateMigitationCosts(formState)
   
